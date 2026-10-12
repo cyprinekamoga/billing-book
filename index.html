@@ -65,6 +65,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent);background:va
 .btn{font:inherit;font-weight:700;border-radius:10px;padding:12px 18px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-size:17px;padding:13px 22px}
 .btn.small{padding:7px 12px;font-size:14px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:default}
 .btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .msg{font-size:14px;color:var(--danger)}
@@ -113,6 +114,8 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
 .receipt{background:var(--sunk);border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:0}
 .send{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .send .btn{width:100%}
+.send .wide{grid-column:1/-1}
+.hint .btn{margin-top:8px}
 .btn.wa{background:#1f8f4e;border-color:#1f8f4e;color:#fff}
 .hint{font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.btn,.seg button{transition:background .15s,transform .1s}.btn:active{transform:scale(.98)}}
@@ -234,9 +237,10 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
     <div class="rwrap"><img class="rimg" id="rcptPrev" alt="Receipt preview"></div>
     <details class="astext" id="rcptAsText"><summary>Show as text</summary><pre class="receipt" id="rcptText"></pre></details>
     <div class="send">
+      <button type="button" class="btn primary wide" id="rcptPng">Download receipt (PNG)</button>
+      <button type="button" class="btn" id="rcptImg">Share image</button>
       <button type="button" class="btn wa" id="rcptWa">Send on WhatsApp</button>
-      <button type="button" class="btn primary" id="rcptMail" style="font-size:16px;padding:12px 18px">Send by email</button>
-      <button type="button" class="btn" id="rcptImg">Share as image</button>
+      <button type="button" class="btn" id="rcptMail">Send by email</button>
       <button type="button" class="btn" id="rcptCopy">Copy text</button>
     </div>
     <div class="hint" id="rcptHint"></div>
@@ -576,10 +580,40 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
     return c;
   }
 
-  let rcptSale=null;
+  // The receipt PNG is made once when the receipt opens, so Download/Share can use it straight away
+  // (phones only allow sharing right after a tap).
+  let rcptSale=null, rcptPng=null;
+  function pngName(s){
+    const who=String(s.name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
+    return 'receipt-'+ensureNo(s)+(who?'-'+who:'')+'.png';
+  }
+  async function toPngFile(c,s){
+    // solid background behind the torn edges, so chat apps don't show the see-through corners as black
+    const out=document.createElement('canvas'), x=out.getContext('2d');
+    out.width=c.width; out.height=c.height;
+    x.fillStyle='#eeebe6'; x.fillRect(0,0,out.width,out.height); x.drawImage(c,0,0);
+    const blob=await new Promise(res=>out.toBlob(res,'image/png'));
+    if(!blob) throw new Error('No image');
+    return new File([blob],pngName(s),{type:'image/png'});
+  }
+  async function receiptPng(s){
+    if(rcptPng && rcptPng.s===s) return rcptPng.file;
+    const file=await toPngFile(await drawReceipt(s),s);
+    rcptPng={s,file}; return file;
+  }
+  function saveFile(file){
+    const url=URL.createObjectURL(file), a=document.createElement('a'); a.href=url; a.download=file.name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
+  function savedHint(s,file){
+    const n=waNumber(s.phone);
+    $('rcptHint').innerHTML='Saved <b>'+esc(file.name)+'</b>. Now send it to '+esc(s.name)+': attach it in WhatsApp, email or a text message.'+
+      (n?'<br><button type="button" class="btn small wa" id="rcptWaChat">Open WhatsApp chat with '+esc(s.name)+'</button>':'');
+    if(n) $('rcptWaChat').onclick=()=>window.open('https://wa.me/'+n,'_blank','noopener');
+  }
   async function openReceipt(id){
     const s=state.sales.find(x=>x.id===id); if(!s) return;
-    rcptSale=s;
+    rcptSale=s; rcptPng=null;
     $('rcptTitle').textContent='Receipt '+ensureNo(s);
     $('rcptText').textContent=receiptText(s);
     $('rcptPrev').removeAttribute('src');
@@ -588,7 +622,11 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
     $('rcptHint').textContent = !s.email && !s.phone ? 'No phone or email saved for this buyer. Add one with Edit, or share the image.' :
       !s.email ? 'No email saved for this buyer. Add it with Edit to send by email.' : '';
     try{ $('rcpt').showModal(); }catch(e){ $('rcpt').setAttribute('open',''); }
-    try{ const cv=await drawReceipt(s); if(rcptSale===s) $('rcptPrev').src=cv.toDataURL('image/png'); }catch(e){}
+    try{
+      const cv=await drawReceipt(s); if(rcptSale!==s) return;
+      $('rcptPrev').src=cv.toDataURL('image/png');
+      const file=await toPngFile(cv,s); if(rcptSale===s && !rcptPng) rcptPng={s,file};
+    }catch(e){}
   }
   function waNumber(p){
     let n=String(p||'').trim(); const plus=n.startsWith('+'); n=n.replace(/\D/g,'');
@@ -612,17 +650,18 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
     try{ await navigator.clipboard.writeText(receiptText(rcptSale)); $('rcptHint').textContent='Copied. Paste it into any chat.'; }
     catch(e){ $('rcptAsText').open=true; const r=document.createRange(); r.selectNodeContents($('rcptText')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('rcptHint').textContent='Text selected. Copy it with your phone’s Copy button.'; }
   };
+  $('rcptPng').onclick=async()=>{
+    const s=rcptSale; let file;
+    try{ file=await receiptPng(s); }catch(e){ $('rcptHint').textContent='Couldn’t make the image. Please try again.'; return; }
+    saveFile(file); savedHint(s,file);
+  };
   $('rcptImg').onclick=async()=>{
-    const no=ensureNo(rcptSale), c=await drawReceipt(rcptSale);
-    c.toBlob(async blob=>{
-      const file=new File([blob],'receipt-'+no+'.png',{type:'image/png'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){
-        try{ await navigator.share({files:[file], title:'Receipt '+no}); return; }catch(e){ if(e.name==='AbortError') return; }
-      }
-      const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=file.name;
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
-      $('rcptHint').textContent='Image saved. Attach it in WhatsApp or email.';
-    },'image/png');
+    const s=rcptSale; let file;
+    try{ file=await receiptPng(s); }catch(e){ $('rcptHint').textContent='Couldn’t make the image. Please try again.'; return; }
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'Receipt '+ensureNo(s)}); return; }catch(e){ if(e.name==='AbortError') return; }
+    }
+    saveFile(file); savedHint(s,file);
   };
 
   resetForm(); render();
