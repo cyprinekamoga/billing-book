@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Yiga Oluganda Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
 <style>
 :root{
   --bg:#f6f4f1; --surface:#ffffff; --sunk:#efebe6; --line:#ddd5cc;
@@ -97,14 +97,20 @@ button.chip{cursor:pointer}
 .private{padding:22px 8px;text-align:center;color:var(--muted)}
 .settings summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:18px}
 .settings[open] summary{margin-bottom:14px}
+.logo-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#logoPrev{max-height:56px;max-width:160px;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--line)}
 .check{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--fg);font-weight:400}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
 .msg .btn{margin-left:8px}
-dialog{border:0;padding:0;border-radius:16px;background:var(--surface);color:var(--fg);width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px)}
+dialog{border:0;padding:0;border-radius:16px;background:var(--surface);color:var(--fg);width:min(600px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+.rimg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;filter:drop-shadow(0 3px 8px rgba(0,0,0,.18))}
+.rwrap{background:var(--sunk);border-radius:12px;padding:16px 12px}
+.astext summary{cursor:pointer;font-size:14px;color:var(--muted);font-weight:700}
+.astext[open] summary{margin-bottom:8px}
 dialog::backdrop{background:rgba(20,14,10,.55)}
 .dlg{display:flex;flex-direction:column;gap:14px;padding:18px;max-height:calc(100dvh - 32px);overflow:auto}
 .dlg-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.receipt{background:var(--sunk);border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:0}
+.receipt{background:var(--sunk);border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:0}
 .send{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .send .btn{width:100%}
 .btn.wa{background:#1f8f4e;border-color:#1f8f4e;color:#fff}
@@ -198,20 +204,35 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
   <details class="panel settings" id="settings">
     <summary>Receipt details</summary>
     <div class="grid">
-      <div class="f c6"><label for="sellerName">Seller name on receipt</label><input id="sellerName" placeholder="Your name or company"></div>
-      <div class="f c3"><label for="sellerContact">Your phone / Swish number</label><input id="sellerContact" inputmode="tel"></div>
-      <div class="f c3"><label for="sellerOrg">Org. number (optional)</label><input id="sellerOrg" placeholder="e.g. 559xxx-xxxx"></div>
-      <div class="f c6"><label for="sellerThanks">Message at the bottom</label><input id="sellerThanks"></div>
+      <div class="f c6"><span class="lbl">Logo (optional)</span>
+        <div class="logo-row">
+          <img id="logoPrev" alt="Your logo" hidden>
+          <button type="button" class="btn small" id="logoBtn">Choose logo</button>
+          <button type="button" class="btn small" id="logoDel" hidden>Remove</button>
+          <input type="file" id="logoFile" accept="image/*" hidden>
+        </div>
+      </div>
+      <div class="f c6"><label for="sellerName">Business name</label><input id="sellerName" placeholder="Your name or company"></div>
+      <div class="f c6"><label for="sellerAddress">Business address</label><input id="sellerAddress" placeholder="Street 1, 123 45 Eskilstuna"></div>
+      <div class="f c3"><label for="sellerContact">Phone / Swish number</label><input id="sellerContact" inputmode="tel"></div>
+      <div class="f c3"><label for="sellerEmail">Email</label><input id="sellerEmail" type="email" inputmode="email"></div>
+      <div class="f c3"><label for="sellerWeb">Website or Instagram</label><input id="sellerWeb" placeholder="www… or @…"></div>
+      <div class="f c3"><label for="sellerOrg">Org. number</label><input id="sellerOrg" placeholder="e.g. 559xxx-xxxx"></div>
+      <div class="f c3"><label for="sellerServed">Served by (optional)</label><input id="sellerServed" placeholder="Your first name"></div>
+      <div class="f c3"><label for="sellerItem">Item name on receipt</label><input id="sellerItem"></div>
+      <div class="f c6"><label for="sellerThanks">Thank-you message</label><input id="sellerThanks"></div>
+      <div class="f c6"><label for="sellerFooter">Footer line (optional)</label><input id="sellerFooter" placeholder="e.g. Follow us on Instagram @yigaoluganda"></div>
       <div class="f c6"><label class="check"><input type="checkbox" id="sellerVat"> Show VAT (moms 6 %) on receipts</label></div>
     </div>
-    <div class="hint">These details print on every receipt. They save on this device.</div>
+    <div class="hint">These details print on every receipt and save on this device. Leave a box empty to keep it off the receipt.</div>
   </details>
 </div>
 
 <dialog id="rcpt">
   <div class="dlg">
     <div class="dlg-head"><h2 id="rcptTitle">Receipt</h2><button type="button" class="btn small" id="rcptClose">Close</button></div>
-    <pre class="receipt" id="rcptText"></pre>
+    <div class="rwrap"><img class="rimg" id="rcptPrev" alt="Receipt preview"></div>
+    <details class="astext" id="rcptAsText"><summary>Show as text</summary><pre class="receipt" id="rcptText"></pre></details>
     <div class="send">
       <button type="button" class="btn wa" id="rcptWa">Send on WhatsApp</button>
       <button type="button" class="btn primary" id="rcptMail" style="font-size:16px;padding:12px 18px">Send by email</button>
@@ -232,7 +253,7 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
   const newId = () => Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 
   // ---- storage (this browser only) ----
-  const SELLER_DEFAULT={name:'Yiga Oluganda', contact:'', org:'', thanks:'Webale nnyo! Thank you for buying Yiga Oluganda.', vat:false};
+  const SELLER_DEFAULT={name:'Yiga Oluganda', address:'', contact:'', email:'', web:'', org:'', served:'', item:'Yiga Oluganda (book)', thanks:'Webale nnyo! Thank you for buying Yiga Oluganda.', footer:'', vat:false, logo:''};
   let state={price:'', sales:[], hideList:false, nextNo:1, seller:{...SELLER_DEFAULT}}, storageOk=true;
   try{ const raw=localStorage.getItem(KEY); if(raw){ const p=JSON.parse(raw); state={...state,...p, seller:{...SELLER_DEFAULT,...(p.seller||{})}}; } }catch(e){ storageOk=false; }
   if(!state.nextNo) state.nextNo=1;
@@ -418,32 +439,156 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
   };
 
   // ---- receipt details (settings) ----
-  const SET={sellerName:'name', sellerContact:'contact', sellerOrg:'org', sellerThanks:'thanks'};
+  const SET={sellerName:'name', sellerAddress:'address', sellerContact:'contact', sellerEmail:'email', sellerWeb:'web', sellerOrg:'org', sellerServed:'served', sellerItem:'item', sellerThanks:'thanks', sellerFooter:'footer'};
   Object.entries(SET).forEach(([id,k])=>{ $(id).value=state.seller[k]||''; $(id).addEventListener('input',()=>{ state.seller[k]=$(id).value; persist(); }); });
   $('sellerVat').checked=!!state.seller.vat;
   $('sellerVat').addEventListener('change',()=>{ state.seller.vat=$('sellerVat').checked; persist(); });
 
-  // ---- receipts ----
-  const money = n => (Math.round((Number(n)||0)*100)/100).toLocaleString('sv-SE',{minimumFractionDigits:0,maximumFractionDigits:2})+' kr';
-  function ensureNo(s){ if(!s.receiptNo){ s.receiptNo=state.nextNo++; persist(); } return 'YO-'+String(s.receiptNo).padStart(4,'0'); }
-  function receiptData(s){
-    const sl=state.seller, no=ensureNo(s), unpaid=s.payment==='Not paid yet';
-    const d=s.date?new Date(s.date+'T12:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'';
-    const head=[sl.name||'Yiga Oluganda', sl.org?'Org. no. '+sl.org:'', sl.contact?'Tel / Swish: '+sl.contact:''].filter(Boolean);
-    const cust=[s.name, s.street, [s.postcode,s.city].filter(Boolean).join(' ')].filter(Boolean);
-    const vat = sl.vat ? Math.round(s.total*6/106*100)/100 : null;
-    return {no,d,head,cust,unpaid,vat,item:'Yiga Oluganda (book)',qty:s.copies,price:s.price,total:s.total,payment:s.payment,thanks:sl.thanks};
+  // logo: shrunk to a small PNG and kept on this device
+  let logoImg=null;
+  function loadLogo(){
+    const src=state.seller.logo;
+    $('logoPrev').hidden=!src; $('logoDel').hidden=!src; $('logoBtn').textContent=src?'Change logo':'Choose logo';
+    if(src) $('logoPrev').src=src;
+    if(!src){ logoImg=null; return Promise.resolve(); }
+    return new Promise(res=>{ const i=new Image(); i.onload=()=>{logoImg=i;res();}; i.onerror=()=>{logoImg=null;res();}; i.src=src; });
   }
-  function receiptText(s){
-    const r=receiptData(s), L='--------------------------------';
-    const out=['RECEIPT '+r.no, ...r.head, L,
-      'Date: '+r.d, 'Customer: '+r.cust.join(', '), L,
-      r.item, '  '+r.qty+' × '+money(r.price)+' = '+money(r.total), L,
-      'TOTAL: '+money(r.total),
-      r.unpaid ? 'Status: NOT PAID YET – amount due '+money(r.total) : 'Paid with: '+r.payment];
-    if(r.vat!=null) out.push('VAT (moms 6 %) included: '+money(r.vat));
-    if(r.thanks) out.push('', r.thanks);
-    return out.join('\n');
+  $('logoBtn').onclick=()=>$('logoFile').click();
+  $('logoDel').onclick=()=>{ state.seller.logo=''; persist(); loadLogo(); };
+  $('logoFile').onchange=e=>{
+    const f=e.target.files[0]; e.target.value=''; if(!f) return;
+    const url=URL.createObjectURL(f), i=new Image();
+    i.onload=()=>{
+      const sc=Math.min(1, 360/i.width, 200/i.height), c=document.createElement('canvas');
+      c.width=Math.round(i.width*sc); c.height=Math.round(i.height*sc);
+      c.getContext('2d').drawImage(i,0,0,c.width,c.height); URL.revokeObjectURL(url);
+      const prev=state.seller.logo; state.seller.logo=c.toDataURL('image/png');
+      if(!persist()){ state.seller.logo=prev; }
+      loadLogo();
+    };
+    i.src=url;
+  };
+  loadLogo();
+
+  // ---- receipts ----
+  const num = n => (Number(n)||0).toLocaleString('sv-SE',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/\s/g,' ');
+  const iso = d => { const x=new Date(d); x.setMinutes(x.getMinutes()-x.getTimezoneOffset()); return x.toISOString().slice(0,10); };
+  function ensureNo(s){ if(!s.receiptNo){ s.receiptNo=state.nextNo++; persist(); } return 'YO-'+String(s.receiptNo).padStart(4,'0'); }
+
+  // A receipt is a list of lines; the same list prints as text (WhatsApp/email) and as the image.
+  function receiptLines(s){
+    const sl=state.seller, no=ensureNo(s), unpaid=s.payment==='Not paid yet';
+    const vat = sl.vat ? Math.round(s.total*6/106*100)/100 : null;
+    const time = (s.createdAt && iso(s.createdAt)===s.date) ? new Date(s.createdAt).toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : '';
+    const L=[], c=(t,o={})=>t&&L.push({l:t,a:'c',...o}), lr=(l,r,o={})=>L.push({l,r:String(r),...o}), sep=ch=>L.push({sep:ch}), blank=()=>L.push({blank:true});
+    if(logoImg) L.push({logo:true});
+    c((sl.name||'Yiga Oluganda').toUpperCase(),{b:true,big:true});
+    c(sl.address); c(sl.contact&&'Tel: '+sl.contact); c(sl.email); c(sl.web); c(sl.org&&'Org.nr: '+sl.org);
+    blank(); c('KVITTO / RECEIPT',{b:true});
+    sep('-');
+    lr('Receipt no:',no); lr('Date:',s.date||''); if(time) lr('Time:',time); if(sl.served) lr('Served by:',sl.served);
+    sep('-');
+    L.push({l:'CUSTOMER',b:true});
+    [s.name, s.street, [s.postcode,s.city].filter(Boolean).join(' '), s.phone, s.email].filter(Boolean).forEach(t=>L.push({l:t}));
+    sep('-');
+    lr('ITEM','AMOUNT',{b:true});
+    L.push({l:sl.item||'Yiga Oluganda (book)'});
+    lr('  '+s.copies+' x '+num(s.price), num(s.total));
+    sep('-');
+    lr('Subtotal',num(s.total));
+    if(vat!=null) lr('of which VAT 6 %',num(vat));
+    sep('=');
+    lr('TOTAL SEK',num(s.total),{b:true,big:true});
+    sep('=');
+    if(unpaid){ lr('Paid:','0,00'); lr('AMOUNT DUE:',num(s.total),{b:true}); }
+    else { lr('Paid with '+s.payment+':',num(s.total)); }
+    lr('Number of items:',s.copies);
+    if(vat!=null){
+      blank(); L.push({l:'VAT SUMMARY',b:true});
+      lr('Rate','6 %'); lr('Net amount',num(s.total-vat)); lr('VAT',num(vat)); lr('Gross amount',num(s.total));
+    }
+    if(!s.delivered){
+      const addWork=(d,n)=>{ const x=new Date((d||iso(Date.now()))+'T12:00'); while(n>0){ x.setDate(x.getDate()+1); if(x.getDay()%6) n--; } return x; };
+      const f=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      blank(); c('** DELIVERY **',{b:true});
+      c('Your book will be delivered within 3-5 working days');
+      c('Expected: '+f(addWork(s.date,3))+' - '+f(addWork(s.date,5)),{b:true});
+    }
+    if(s.note){ blank(); L.push({l:'Note: '+s.note}); }
+    sep('-');
+    c(sl.thanks); if(sl.thanks&&sl.footer) blank(); c(sl.footer);
+    blank(); c('Spara kvittot / Keep your receipt');
+    c(no+'  '+(s.date||'')+(time?' '+time:''));
+    return L;
+  }
+
+  function wrap(t,cols){
+    const out=[]; let cur='';
+    String(t).split(/\s+/).forEach(w=>{
+      while(w.length>cols){ if(cur){out.push(cur);cur='';} out.push(w.slice(0,cols)); w=w.slice(cols); }
+      const n=cur?cur+' '+w:w; if(n.length>cols){ out.push(cur); cur=w; } else cur=n;
+    });
+    if(cur||!out.length) out.push(cur); return out;
+  }
+  function fmt(o,cols){
+    if(o.sep) return [o.sep.repeat(cols)];
+    if(o.blank) return [''];
+    if(o.r!=null){
+      const gap=cols-o.l.length-o.r.length;
+      if(gap>=1) return [o.l+' '.repeat(gap)+o.r];
+      return [...wrap(o.l,cols), ' '.repeat(Math.max(0,cols-o.r.length))+o.r];
+    }
+    return wrap(o.l,cols).map(t=>o.a==='c'?' '.repeat(Math.floor((cols-t.length)/2))+t:t);
+  }
+  function receiptText(s,forWhatsApp){
+    const cols=32, rows=[];
+    receiptLines(s).forEach(o=>{ if(!o.logo) rows.push(...fmt(o,cols).map(t=>t.replace(/\s+$/,''))); });
+    const body=rows.join('\n');
+    return forWhatsApp ? '```\n'+body+'\n```' : body;
+  }
+
+  async function drawReceipt(s){
+    try{ await Promise.all([document.fonts.load('400 20px "IBM Plex Mono"'),document.fonts.load('700 20px "IBM Plex Mono"')]); }catch(e){}
+    const COLS=40, BIGCOLS=27, W=600, PAD=30, TEETH=12, FACE='"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace';
+    const c=document.createElement('canvas'), x=c.getContext('2d');
+    x.font='400 100px '+FACE; const cw=x.measureText('M').width/100;   // char width per px of font size
+    const fs=(W-PAD*2)/COLS/cw, fsBig=(W-PAD*2)/BIGCOLS/cw;
+    const items=[]; let y=TEETH+PAD;
+    receiptLines(s).forEach(o=>{
+      if(o.logo && logoImg){ const sc=Math.min(1,240/logoImg.width,110/logoImg.height), w=logoImg.width*sc, h=logoImg.height*sc; items.push({img:true,x:(W-w)/2,y,w,h}); y+=h+fs*0.8; return; }
+      const size=o.big?fsBig:fs, cols=o.big?BIGCOLS:COLS, lh=size*1.42;
+      fmt(o,cols).forEach(t=>{ items.push({t,size,b:!!o.b,sep:!!o.sep,y:y+size}); y+=lh; });
+    });
+    const H=Math.ceil(y+PAD+TEETH), dpr=2;
+    c.width=W*dpr; c.height=H*dpr; x.scale(dpr,dpr);
+    // paper with torn (zigzag) edges
+    x.beginPath(); x.moveTo(0,TEETH);
+    for(let i=0;i<=W;i+=TEETH*2){ x.lineTo(i+TEETH,0); x.lineTo(Math.min(i+TEETH*2,W),TEETH); }
+    x.lineTo(W,H-TEETH);
+    for(let i=W;i>=0;i-=TEETH*2){ x.lineTo(i-TEETH,H); x.lineTo(Math.max(i-TEETH*2,0),H-TEETH); }
+    x.closePath(); x.fillStyle='#fffdf8'; x.fill();
+    x.textBaseline='alphabetic'; x.textAlign='left';
+    items.forEach(o=>{
+      if(o.img){ x.drawImage(logoImg,o.x,o.y,o.w,o.h); return; }
+      x.font=(o.b?'700 ':'400 ')+o.size+'px '+FACE; x.fillStyle=o.sep?'#8c8780':'#1d1b19';
+      x.fillText(o.t,PAD,o.y);
+    });
+    return c;
+  }
+
+  let rcptSale=null;
+  async function openReceipt(id){
+    const s=state.sales.find(x=>x.id===id); if(!s) return;
+    rcptSale=s;
+    $('rcptTitle').textContent='Receipt '+ensureNo(s);
+    $('rcptText').textContent=receiptText(s);
+    $('rcptPrev').removeAttribute('src');
+    $('rcptWa').textContent = s.phone ? 'Send on WhatsApp' : 'WhatsApp (pick contact)';
+    $('rcptMail').disabled = !s.email;
+    $('rcptHint').textContent = !s.email && !s.phone ? 'No phone or email saved for this buyer. Add one with Edit, or share the image.' :
+      !s.email ? 'No email saved for this buyer. Add it with Edit to send by email.' : '';
+    try{ $('rcpt').showModal(); }catch(e){ $('rcpt').setAttribute('open',''); }
+    try{ const cv=await drawReceipt(s); if(rcptSale===s) $('rcptPrev').src=cv.toDataURL('image/png'); }catch(e){}
   }
   function waNumber(p){
     let n=String(p||'').trim(); const plus=n.startsWith('+'); n=n.replace(/\D/g,'');
@@ -453,67 +598,22 @@ dialog::backdrop{background:rgba(20,14,10,.55)}
     if(n.startsWith('0')) return '46'+n.slice(1);   // Swedish number like 070…
     return n;
   }
-  function drawReceipt(s){
-    const r=receiptData(s), W=720, pad=48, lines=[];
-    const add=(t,o={})=>lines.push({t,...o});
-    add('RECEIPT',{size:16,bold:true,color:'#8a3f1d',gap:6}); add(r.no,{size:30,bold:true,gap:18});
-    r.head.forEach((h,i)=>add(h,{size:i?20:24,bold:!i,gap:4}));
-    add('',{rule:true}); add('Date',{size:18,muted:true,right:r.d}); add('Customer',{size:18,muted:true,right:r.cust[0]});
-    r.cust.slice(1).forEach(c=>add('',{size:18,right:c}));
-    add('',{rule:true}); add(r.item,{size:22,bold:true,gap:4}); add(r.qty+' × '+money(r.price),{size:20,muted:true,right:money(r.total)});
-    add('',{rule:true}); add('TOTAL',{size:30,bold:true,right:money(r.total)});
-    add(r.unpaid?'Not paid yet':'Paid with',{size:20,muted:!r.unpaid,color:r.unpaid?'#8a5a00':null,right:r.unpaid?'Amount due':r.payment});
-    if(r.vat!=null) add('VAT (moms 6 %) included',{size:18,muted:true,right:money(r.vat)});
-    if(r.thanks){ add('',{rule:true}); add(r.thanks,{size:20,wrap:true}); }
-    const c=document.createElement('canvas'), x=c.getContext('2d');
-    const font=(o)=>(o.bold?'700 ':'400 ')+o.size+'px "Atkinson Hyperlegible", system-ui, sans-serif';
-    // measure height (wrap long text)
-    const items=[]; let h=pad;
-    lines.forEach(o=>{
-      if(o.rule){ items.push({...o,y:h+14}); h+=30; return; }
-      x.font=font(o); let rows=[o.t];
-      if(o.wrap){ rows=[]; let cur=''; o.t.split(' ').forEach(w=>{ const t=cur?cur+' '+w:w; if(x.measureText(t).width>W-pad*2&&cur){rows.push(cur);cur=w;} else cur=t; }); rows.push(cur); }
-      rows.forEach((t,i)=>{ items.push({...o,t,right:i?null:o.right,y:h+o.size}); h+=o.size*1.45; });
-      h+=(o.gap||8);
-    });
-    h+=pad; const dpr=2; c.width=W*dpr; c.height=Math.ceil(h)*dpr; x.scale(dpr,dpr);
-    x.fillStyle='#ffffff'; x.fillRect(0,0,W,h); x.fillStyle='#8a3f1d'; x.fillRect(0,0,W,8);
-    items.forEach(o=>{
-      if(o.rule){ x.strokeStyle='#ddd5cc'; x.setLineDash([6,6]); x.beginPath(); x.moveTo(pad,o.y); x.lineTo(W-pad,o.y); x.stroke(); x.setLineDash([]); return; }
-      x.font=font(o); x.fillStyle=o.color||(o.muted?'#6d6158':'#211a15'); x.textAlign='left'; x.fillText(o.t,pad,o.y);
-      if(o.right){ x.font=font({...o,bold:o.bold||!o.muted}); x.fillStyle=o.color||'#211a15'; x.textAlign='right'; x.fillText(o.right,W-pad,o.y); }
-    });
-    return c;
-  }
-
-  let rcptSale=null;
-  function openReceipt(id){
-    const s=state.sales.find(x=>x.id===id); if(!s) return;
-    rcptSale=s; const text=receiptText(s);
-    $('rcptTitle').textContent='Receipt '+ensureNo(s);
-    $('rcptText').textContent=text;
-    $('rcptWa').textContent = s.phone ? 'Send on WhatsApp' : 'WhatsApp (pick contact)';
-    $('rcptMail').disabled = !s.email;
-    $('rcptHint').textContent = !s.email && !s.phone ? 'No phone or email saved for this buyer. Add one with Edit, or share the image.' :
-      !s.email ? 'No email saved for this buyer. Add it with Edit to send by email.' : '';
-    try{ $('rcpt').showModal(); }catch(e){ $('rcpt').setAttribute('open',''); }
-  }
   $('rcptClose').onclick=()=>$('rcpt').close();
   $('rcpt').addEventListener('click',e=>{ if(e.target===$('rcpt')) $('rcpt').close(); });
   $('rcptWa').onclick=()=>{
-    const n=waNumber(rcptSale.phone), t=encodeURIComponent(receiptText(rcptSale));
+    const n=waNumber(rcptSale.phone), t=encodeURIComponent(receiptText(rcptSale,true));
     window.open(n?'https://wa.me/'+n+'?text='+t:'https://wa.me/?text='+t,'_blank','noopener');
   };
   $('rcptMail').onclick=()=>{
-    const r=receiptData(rcptSale);
-    location.href='mailto:'+encodeURIComponent(rcptSale.email)+'?subject='+encodeURIComponent('Receipt '+r.no+' – Yiga Oluganda')+'&body='+encodeURIComponent(receiptText(rcptSale));
+    const no=ensureNo(rcptSale);
+    location.href='mailto:'+encodeURIComponent(rcptSale.email)+'?subject='+encodeURIComponent('Receipt '+no+' – '+(state.seller.name||'Yiga Oluganda'))+'&body='+encodeURIComponent(receiptText(rcptSale));
   };
   $('rcptCopy').onclick=async()=>{
     try{ await navigator.clipboard.writeText(receiptText(rcptSale)); $('rcptHint').textContent='Copied. Paste it into any chat.'; }
-    catch(e){ const r=document.createRange(); r.selectNodeContents($('rcptText')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('rcptHint').textContent='Text selected. Copy it with your phone’s Copy button.'; }
+    catch(e){ $('rcptAsText').open=true; const r=document.createRange(); r.selectNodeContents($('rcptText')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('rcptHint').textContent='Text selected. Copy it with your phone’s Copy button.'; }
   };
-  $('rcptImg').onclick=()=>{
-    const no=ensureNo(rcptSale), c=drawReceipt(rcptSale);
+  $('rcptImg').onclick=async()=>{
+    const no=ensureNo(rcptSale), c=await drawReceipt(rcptSale);
     c.toBlob(async blob=>{
       const file=new File([blob],'receipt-'+no+'.png',{type:'image/png'});
       if(navigator.canShare && navigator.canShare({files:[file]})){
