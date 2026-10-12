@@ -1,0 +1,5 @@
+# Skills in this folder are installed at session start by
+# .claude/hooks/session-start.sh and are not committed.
+# To commit a skill of your own, add a line like `!/my-skill/` below.
+/*
+!/.gitignore
